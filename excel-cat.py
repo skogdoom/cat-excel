@@ -1,5 +1,6 @@
 import xlrd
 import xlwt
+import argparse
 
 
 def cat_workbook(*workbooks):
@@ -28,18 +29,15 @@ def cat_workbook(*workbooks):
     return cat_wb
 
 
-def cat_excel(filename_a, filename_b, filename_result):
-    new_wb = cat_workbook(
-        xlrd.open_workbook(filename_a),
-        xlrd.open_workbook(filename_b),
-        xlrd.open_workbook(filename_a),
-    )
+def cat_excel(filename_result, *filenames):
+    new_wb = cat_workbook(*[xlrd.open_workbook(filename) for filename in filenames])
     new_wb.save(filename_result)
 
 
 if __name__ == '__main__':
-    cat_excel(
-        'excel_files/a.xlsx',
-        'excel_files/b.xlsx',
-        'excel_files/result.xls'
-    )
+    parser = argparse.ArgumentParser(description='Concatenate Excel files.')
+    parser.add_argument('files', nargs='+', type=str, help='path and filename of an Excel file to concatenate')
+    parser.add_argument('-result', type=str, default='result.xls', help='path and filename of result file to create')
+    args = parser.parse_args()
+
+    cat_excel(args.result, *args.files)

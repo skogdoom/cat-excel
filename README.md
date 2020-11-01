@@ -9,4 +9,4 @@ The script assumes that the number of sheets and columns are the same in all fil
 How to run:
 
 1. pip3 install -r requirements.txt
-2. python3 excel-cat.py a.xlsx b.xlsx -result cat-result.xlsx
+2. python3 cat-excel.py a.xlsx b.xlsx -result cat-result.xlsx

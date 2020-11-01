@@ -2,31 +2,37 @@ import xlrd
 import xlwt
 
 
-def cat_workbook(workbook_a, workbook_2):
-    new_wb = xlwt.Workbook()
+def cat_workbook(*workbooks):
+    cat_wb = xlwt.Workbook()
 
-    for sheet_idx in range(workbook_a.nsheets):
-        sheet_a = workbook_a.sheet_by_index(sheet_idx)
-        sheet_b = workbook_2.sheet_by_index(sheet_idx)
+    no_sheets = workbooks[0].nsheets
+    write_row_idx_sheet = {}
 
-        cat_sheet = new_wb.add_sheet(sheet_a.name)
+    for wb in workbooks:
+        for sheet_idx in range(no_sheets):
+            sheet = wb.sheet_by_index(sheet_idx)
 
-        for col_idx in range(sheet_a.ncols):
-            values_1 = sheet_a.col_values(col_idx, 0, sheet_a.nrows)
-            values_2 = sheet_b.col_values(col_idx, 0, sheet_b.nrows)
+            try:
+                cat_sheet = cat_wb.get_sheet(sheet.name)
+            except Exception as e:
+                cat_sheet = cat_wb.add_sheet(sheet.name)
+                write_row_idx_sheet[sheet.name] = 0
 
-            cat_col = values_1 + values_2
+            for row_idx, row in enumerate(sheet.get_rows()):
+                write_col_idx = 0
+                for column in row:
+                    cat_sheet.write(write_row_idx_sheet[sheet.name], write_col_idx, column.value)
+                    write_col_idx += 1
+                write_row_idx_sheet[sheet.name] += 1
 
-            for row_idx, value in enumerate(cat_col):
-                cat_sheet.write(row_idx, col_idx, value)
-
-    return new_wb
+    return cat_wb
 
 
 def cat_excel(filename_a, filename_b, filename_result):
     new_wb = cat_workbook(
         xlrd.open_workbook(filename_a),
-        xlrd.open_workbook(filename_b)
+        xlrd.open_workbook(filename_b),
+        xlrd.open_workbook(filename_a),
     )
     new_wb.save(filename_result)
 
